@@ -17,9 +17,9 @@ services:
       context: .
       dockerfile: Dockerfile.be
     ports:
-      - "8004:8004"
+      - "4008:4008"
     expose:
-      - "8004"
+      - "4008"
     volumes:
       - ./backend:/app
     env_file:
