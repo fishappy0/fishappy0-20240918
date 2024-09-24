@@ -1,7 +1,7 @@
 log-level: "Debug"
 
 local-server:
-  port: "8004"
+  port: "4008"
 
 api-url: "https://api.coingecko.com/api/v3/"
 
