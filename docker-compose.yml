@@ -8,7 +8,8 @@ services:
     volumes:
       - ./db:/var/lib/postgresql/data
       - pgdata:/var/lib/postgresql/data
-
+    command: 
+      - -p 5434
     env_file:
       - stack.env
   go-be:
