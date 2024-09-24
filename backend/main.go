@@ -46,6 +46,6 @@ func main() {
 	ListRouter(router, dbo)
 	GeneralRouter(router, dbo)
 	CryptoRouter(router, dbo)
-	router.RunTLS(":8080", "./certs/cert.pem", "./certs/key.pem")
+	router.RunTLS(":"+config_yaml.LocalServer.Port, "./certs/cert.pem", "./certs/key.pem")
 	wg.Wait()
 }
