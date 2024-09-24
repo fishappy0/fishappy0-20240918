@@ -18,6 +18,8 @@ services:
       dockerfile: Dockerfile.be
     ports:
       - "8004:8004"
+    expose:
+      - "8004"
     volumes:
       - ./backend:/app
     env_file:
@@ -31,6 +33,8 @@ services:
       dockerfile: Dockerfile.fe
     ports:
       - "3000:3000"
+    expose:
+      - "3000"
     volumes:
       - ./frontend:/app
     environment:
