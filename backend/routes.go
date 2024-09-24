@@ -1,0 +1,50 @@
+package main
+
+import (
+	"CryptWatchBE/controllers"
+
+	gin "github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+)
+
+func GeneralRouter(router *gin.Engine, input_db *gorm.DB) {
+	// fmt.Println("GeneralRouter")
+	gr := router.Group("/")
+	gr.GET("/health", controllers.HealthCheck)
+	gr.Use(IsAuthenticated)
+}
+
+func ListRouter(router *gin.Engine, input_db *gorm.DB) {
+	// fmt.Println("ListRouter")
+	lr := router.Group("/")
+	// lr.Use(IsAuthenticated)
+	gr_db := controllers.GeneralDB{DB: input_db}
+	{
+		lr.GET("/cryptos", gr_db.GetCryptoList)
+		lr.GET("/trending", gr_db.GetTrending)
+	}
+}
+
+func CryptoRouter(router *gin.Engine, input_db *gorm.DB) {
+	// fmt.Println("CryptoRouter")
+	cr := router.Group("/crypto")
+	// cr.Use(IsAuthenticated)
+	cr_db := controllers.CryptoDB{DB: input_db}
+	{
+		cr.GET("/Price", cr_db.GetCoinPrice)
+		cr.GET("/search", cr_db.SearchCoins)
+		cr.GET("/OHLC", cr_db.GetCoinOHLC)
+		cr.GET("/detailed", cr_db.GetCoinDetailedInfo)
+	}
+}
+
+func AccountRouter(router *gin.Engine, input_db *gorm.DB) {
+	// fmt.Println("AccountRouter")
+	ar := router.Group("/account")
+	ar_db := controllers.AccountDB{DB: input_db}
+	{
+		ar.POST("/register", ar_db.Register)
+		ar.POST("/login", ar_db.Login)
+		// ar.GET("/logout", ar_db.Logout)
+	}
+}

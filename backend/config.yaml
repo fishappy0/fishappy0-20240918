@@ -1,0 +1,20 @@
+log-level: "Debug"
+
+local-server:
+  port: "8080"
+
+api-url: "https://api.coingecko.com/api/v3/"
+
+supported-currencies:
+  - name: US Dollar
+    symbol: USD
+  - name: Euro
+    symbol: EUR
+  - name: Singaporean Dollar
+    symbol: SGD
+  - name: Chinese Yuan
+    symbol: CNY
+  - name: Malaysian Ringgit
+    symbol: MYR
+  - name: Vietnamese Dong
+    symbol: VND
