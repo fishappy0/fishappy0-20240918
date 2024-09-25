@@ -20,7 +20,7 @@ func ListRouter(router *gin.Engine, input_db *gorm.DB) {
 	// lr.Use(IsAuthenticated)
 	gr_db := controllers.GeneralDB{DB: input_db}
 	{
-		lr.GET("/cryptos", gr_db.GetCryptoList)
+		lr.GET("/list_cryptos", gr_db.GetCryptoList)
 		lr.GET("/trending", gr_db.GetTrending)
 	}
 }
