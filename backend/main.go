@@ -41,7 +41,7 @@ func main() {
 	go routines.CacheDataAndConversion(dbo, &wg)
 
 	router := gin.Default()
-	AccountRouter(router, dbo)
+	// AccountRouter(router, dbo)
 	// router.Use(IsAuthenticated)
 	ListRouter(router, dbo)
 	GeneralRouter(router, dbo)

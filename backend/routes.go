@@ -31,9 +31,9 @@ func CryptoRouter(router *gin.Engine, input_db *gorm.DB) {
 	// cr.Use(IsAuthenticated)
 	cr_db := controllers.CryptoDB{DB: input_db}
 	{
-		cr.GET("/Price", cr_db.GetCoinPrice)
+		cr.GET("/price", cr_db.GetCoinPrice)
 		cr.GET("/search", cr_db.SearchCoins)
-		cr.GET("/OHLC", cr_db.GetCoinOHLC)
+		cr.GET("/ohlc", cr_db.GetCoinOHLC)
 		cr.GET("/detailed", cr_db.GetCoinDetailedInfo)
 	}
 }

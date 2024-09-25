@@ -197,7 +197,7 @@ func ParseUnixTime(input_time string) time.Time {
 	}
 	unix_time, err := strconv.ParseInt(input_time, 10, 64)
 	if err != nil {
-		log.Println("Error while parsing unix time: ", err)
+		log.Panicln("Error while parsing unix time: ", err)
 		return time.Time{}
 	}
 	return time.Unix(unix_time, 0)
@@ -241,7 +241,7 @@ func FetchDataFromApiAsJson(url string, api_key string) []byte {
 	res, res_err := http.DefaultClient.Do(req)
 
 	if res_err != nil {
-		log.Println("Error while making request: ", req_err)
+		log.Panicln("Error while making request: ", req_err)
 		return nil
 	}
 
@@ -249,7 +249,7 @@ func FetchDataFromApiAsJson(url string, api_key string) []byte {
 	body, body_err := io.ReadAll(res.Body)
 
 	if body_err != nil {
-		log.Println("Error while reading response body: ", body_err)
+		log.Panicln("Error while reading response body: ", body_err)
 		return nil
 	}
 

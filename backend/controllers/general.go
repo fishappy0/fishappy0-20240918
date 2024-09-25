@@ -41,7 +41,14 @@ func (gdb *GeneralDB) GetCryptoList(c *gin.Context) {
 		models.CryptosData
 	}{}
 
-	tx := gdb.DB.Table("cryptos_data, cryptos").Select("cryptos.name, cryptos_data.*").Where("cryptos.crypt_id = cryptos_data.crypt_id").Joins("JOIN cryptos ON cryptos.crypt_id = cryptos_data.crypt_id").Order(sort_by).Limit(num_of_coins).Scan(&return_data)
+	tx := gdb.DB.
+		Table("cryptos_data, cryptos").
+		Select("cryptos.name, cryptos_data.*").
+		Where("cryptos.crypt_id = cryptos_data.crypt_id").
+		Joins("JOIN cryptos ON cryptos.crypt_id = cryptos_data.crypt_id").Order(sort_by).
+		Limit(num_of_coins).
+		Scan(&return_data)
+
 	if tx.Error != nil {
 		if tx.Error.Error() != "record not found" {
 			log.Println("Error fetching data from database, trace: ", tx.Error)
@@ -68,7 +75,14 @@ func (gdb *GeneralDB) GetCryptoList(c *gin.Context) {
 // //////////////////////
 func (gdb *GeneralDB) GetTrending(c *gin.Context) {
 	return_data := []models.CryptosData{}
-	tx := gdb.DB.Table("cryptos_data").Select("cryptos.name, cryptos_data.*").Where("cryptos.crypt_id = cryptos_data.crypt_id").Joins("JOIN cryptos ON cryptos.crypt_id = cryptos_data.crypt_id").Where("rank < ?", 50).Order("rank asc").Scan(&return_data)
+	tx := gdb.DB.
+		Table("cryptos_data").
+		Select("cryptos.name, cryptos_data.*").
+		Where("cryptos.crypt_id = cryptos_data.crypt_id").
+		Joins("JOIN cryptos ON cryptos.crypt_id = cryptos_data.crypt_id").
+		Where("rank < ?", 50).Where("NOT rank = 0").Order("rank asc").
+		Scan(&return_data)
+
 	if tx.Error != nil {
 		if tx.Error.Error() != "record not found" {
 			log.Println("Error fetching data from database, trace: ", tx.Error)
