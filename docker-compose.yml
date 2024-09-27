@@ -36,9 +36,9 @@ services:
     expose:
       - "3000"
     volumes:
-      - ./frontend:/app
+      - ./frontend/:/app
     environment:
-      - VITE_API_ADDRESS=http://localhost:8080
+      - VITE_API_URL=http://localhost:4008
   
 volumes:
   pgdata:

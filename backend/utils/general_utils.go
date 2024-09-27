@@ -3,6 +3,7 @@ package utils
 import (
 	model "CryptWatchBE/models"
 	types "CryptWatchBE/types"
+	"encoding/json"
 	io "io"
 	"log"
 	"net/http"
@@ -16,6 +17,7 @@ import (
 	"gorm.io/datatypes"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // //////////////////////
@@ -254,4 +256,95 @@ func FetchDataFromApiAsJson(url string, api_key string) []byte {
 	}
 
 	return body
+}
+
+// //////////////////////
+// Function name: CacheCurrencyData
+// Description: This function is used to cache conversion data, runs after coins detail caching is complete
+// Input: db object, iterations, current loop
+// Output: None
+// //////////////////////
+func CacheCurrencyData(db *gorm.DB, iterations int, current_loop int) {
+	var coins_ids []string
+	var supported_fiats []model.Fiats
+	tx := db.Find(&supported_fiats)
+	cx := db.Model(&model.Cryptos{}).Select("crypt_id").Find(&coins_ids)
+	if current_loop == 0 {
+		current_loop += iterations
+	}
+	if tx.RowsAffected == 0 || cx.RowsAffected == 0 {
+		log.Println("No supported fiats or coins found in the database")
+	} else {
+		var supported_currencies []string
+		for _, fiat := range supported_fiats {
+			supported_currencies = append(supported_currencies, fiat.Symbol)
+		}
+
+		for num_coins := current_loop; num_coins < len(coins_ids); num_coins += iterations {
+			end_index := num_coins
+			start_index := num_coins - 20
+			if end_index > len(coins_ids) {
+				end_index = len(coins_ids)
+			}
+			if start_index > len(coins_ids) {
+				start_index = len(coins_ids) - 20
+			}
+			url := "https://api.coingecko.com/api/v3/simple/price?ids=" + strings.Join(coins_ids[start_index-20:end_index], ",") + "&vs_currencies=" + strings.Join(supported_currencies, ",")
+			var response map[string]map[string]float64
+			coins_prices_bytes := FetchDataFromApiAsJson(url, os.Getenv("COINGECKO_API_KEY"))
+			err := json.Unmarshal(coins_prices_bytes, &response)
+			if err != nil {
+				log.Println("Error unmarshalling the response from the api, trace: ", err)
+			}
+			if strings.Contains(string(coins_prices_bytes), "429") {
+				log.Println("Rate limit exceeded, sleeping for 30 seconds")
+				time.Sleep(30 * time.Second)
+				CacheCurrencyData(db, iterations, current_loop)
+				return
+			}
+			conversions_structs := []model.Conversions{}
+			for coin_id, coin_data := range response {
+				for symbol, rate := range coin_data {
+					conversions_structs = append(conversions_structs, model.Conversions{
+						Crypt_id:    coin_id,
+						Symbol:      strings.ToLower(symbol),
+						Rate:        rate,
+						Update_time: int(time.Now().Unix())})
+				}
+			}
+			db.Clauses(clause.OnConflict{UpdateAll: true}).Create(&conversions_structs)
+			time.Sleep(1 * time.Second)
+			log.Println("Finished caching currencies iteration ", current_loop, " of ", len(coins_ids))
+			current_loop += iterations
+		}
+	}
+	return
+}
+
+func FetchConversionFromApi(db *gorm.DB, coins_id string) []model.Conversions {
+	url := "https://api.coingecko.com/api/v3/simple/price?ids=" + coins_id + "&vs_currencies=usd,eur,sgd,vnd,myr,cny"
+	time.Sleep(3 * time.Second)
+	bytes := FetchDataFromApiAsJson(url, os.Getenv("API_KEY"))
+	if bytes == nil {
+		log.Panicln("Error fetching data from api")
+		return nil
+	}
+	var api_resp map[string]map[string]float64
+	err := json.Unmarshal(bytes, &api_resp)
+	if err != nil {
+		log.Panicln("Error unmarshalling data from api")
+		return nil
+	}
+	var db_resp []model.Conversions
+	for _, coin_data := range api_resp {
+		for symbol, rate := range coin_data {
+			db_resp = append(db_resp, model.Conversions{
+				Crypt_id: coins_id,
+				Symbol:   strings.ToLower(symbol),
+				Rate:     rate,
+			})
+		}
+	}
+	db.Create(&db_resp)
+	return db_resp
 }

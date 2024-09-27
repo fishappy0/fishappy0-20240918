@@ -12,15 +12,13 @@ type Cryptos struct {
 }
 
 type CryptosData struct {
-	Data_id       int `gorm:"primaryKey;auto_increment"`
-	Crypt_id      string
-	Volume        float32
-	Price         float32
-	Rank          int
-	Conversion_id float32
-	Supply        float32
-	Market_cap    float32
-	Update_time   int
+	Crypt_id    string `gorm:"primaryKey;"`
+	Volume      float32
+	Price       float32
+	Rank        int
+	Supply      float32
+	Market_cap  float32
+	Update_time int
 }
 
 type Price struct {
@@ -42,17 +40,16 @@ type OHLC struct {
 
 type Conversions struct {
 	Crypt_id    string `gorm:"primaryKey"`
-	Fiat_id     int    `gorm:"primaryKey"`
+	Symbol      string `gorm:"primaryKey;type:varchar(255)"`
 	Rate        float64
 	Update_time int
 }
 
 type Fiats struct {
-	Fiat_id int    `gorm:"primaryKey"`
-	Name    string `gorm:"type:varchar(255)"`
-	Symbol  string `gorm:"type:varchar(255)"`
+	Symbol string `gorm:"primaryKey;type:varchar(255)"`
+	Name   string `gorm:"type:varchar(255)"`
 
-	Conversions Conversions `gorm:"foreignKey:Fiat_id;references:Fiat_id"`
+	Conversions Conversions `gorm:"foreignKey:Symbol;references:Symbol"`
 }
 
 type Accounts struct {

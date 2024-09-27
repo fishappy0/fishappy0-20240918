@@ -1,4 +1,4 @@
-package main
+package routes
 
 import (
 	"CryptWatchBE/controllers"
@@ -11,7 +11,6 @@ func GeneralRouter(router *gin.Engine, input_db *gorm.DB) {
 	// fmt.Println("GeneralRouter")
 	gr := router.Group("/")
 	gr.GET("/health", controllers.HealthCheck)
-	gr.Use(IsAuthenticated)
 }
 
 func ListRouter(router *gin.Engine, input_db *gorm.DB) {
@@ -22,6 +21,7 @@ func ListRouter(router *gin.Engine, input_db *gorm.DB) {
 	{
 		lr.GET("/list_cryptos", gr_db.GetCryptoList)
 		lr.GET("/trending", gr_db.GetTrending)
+		lr.GET("/supported_currencies", gr_db.GetSupportedCurrencies)
 	}
 }
 
@@ -35,6 +35,7 @@ func CryptoRouter(router *gin.Engine, input_db *gorm.DB) {
 		cr.GET("/search", cr_db.SearchCoins)
 		cr.GET("/ohlc", cr_db.GetCoinOHLC)
 		cr.GET("/detailed", cr_db.GetCoinDetailedInfo)
+		cr.GET("/conversion", cr_db.GetCoinConversions)
 	}
 }
 
